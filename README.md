@@ -13,10 +13,15 @@ Based on [adcomp/Godot4_p5](https://github.com/adcomp/Godot4_p5).
 - **Select sketches at runtime** from a menu without restarting the project
 - Built-in UI: **pause**, **restart**, **screenshot/save**, **color picker**
 - p5.js-inspired API: `setup()`, `draw()`, `background()`, `fill()`, `stroke()`, and more
-- Transform stack: `push()` / `pop()`, `translate`, `rotate`
-- Mouse input: `mouseX`, `mouseY`, `mouseIsPressed`, `mousePressed()`
-- Time helpers: `hour()`, `minute()`, `second()`
-- Constants: `TWO_PI`, `HALF_PI`, `QUARTER_PI`
+- **Full shape set**: circle, ellipse, arc, rect, triangle, quad, point, bezier, curve, beginShape/endShape
+- **Transform stack**: `push()` / `pop()` saves and restores transform **and** style state; `translate`, `rotate`, `scale`, `resetMatrix`
+- **Math helpers**: `map`, `constrain`, `lerp`, `dist`, `noise` (1D/2D/3D), `random`, `randomGaussian`, and more
+- **Text & images**: `text()`, `textSize()`, `textAlign()`, `loadImage()`, `image()`
+- **Color helpers**: `lerpColor`, `red/green/blue/alpha` channel extraction
+- Mouse input: `mouseX/Y`, `pmouseX/Y`, `movedX/Y`, `mouseIsPressed`, event callbacks
+- Keyboard input: `keyIsPressed`, `key`, `keyCode`, `keyPressed()` / `keyReleased()` callbacks
+- Time helpers: `hour()`, `minute()`, `second()`, `day()`, `month()`, `year()`, `millis()`
+- Constants: `PI`, `TWO_PI`, `HALF_PI`, `QUARTER_PI`, `E`
 
 ---
 
@@ -70,19 +75,38 @@ public partial class MySketch : GodotP5
 # API Reference
 
 <details>
-<summary>Drawing</summary>
+<summary>Drawing — Shapes</summary>
 
 | GDScript | C# | Description |
 |---|---|---|
-| `circle(x, y, r)` | `Circle(x, y, r)` | Draw a circle |
-| `line(x1, y1, x2, y2)` | `Line(x1, y1, x2, y2)` | Draw a line |
-| `arc(x, y, w, h, start, stop)` | — | Draw an arc |
-| `point(x, y)` | — | Draw a point |
-| `rect(x, y, w, h)` | — | Draw a rectangle |
-| `square(x, y, s)` | — | Draw a square |
-| `triangle(x1,y1, x2,y2, x3,y3)` | — | Draw a triangle |
-| `quad(x1,y1, x2,y2, x3,y3, x4,y4)` | — | Draw a quadrilateral |
-| `beginShape()` / `vertex(x,y)` / `endShape()` | — | Draw a custom polygon |
+| `circle(x, y, r)` | `Circle(x, y, r)` | Filled circle with optional stroke |
+| `ellipse(x, y, w, h)` | `Ellipse(x, y, w, h)` | Ellipse with independent width / height |
+| `arc(x, y, w, h, start, stop)` | `Arc(x, y, w, h, start, stop)` | Elliptical arc (radians) |
+| `line(x1, y1, x2, y2)` | `Line(x1, y1, x2, y2)` | Line segment |
+| `point(x, y)` | `Point(x, y)` | Single point (sized by stroke weight) |
+| `rect(x, y, w, h)` | `Rect(x, y, w, h)` | Rectangle |
+| `square(x, y, s)` | `Square(x, y, s)` | Square |
+| `triangle(x1,y1, x2,y2, x3,y3)` | `Triangle(...)` | Triangle |
+| `quad(x1,y1, x2,y2, x3,y3, x4,y4)` | `Quad(...)` | Quadrilateral |
+| `beginShape()` | `BeginShape()` | Start a custom polygon |
+| `vertex(x, y)` | `Vertex(x, y)` | Add a vertex |
+| `endShape([close])` | `EndShape([close])` | Finish and draw the polygon |
+| `bezier(x1,y1, cx1,cy1, cx2,cy2, x2,y2)` | `Bezier(...)` | Cubic Bézier curve |
+| `curve(x1,y1, x2,y2, x3,y3, x4,y4)` | — | Catmull-Rom spline |
+
+</details>
+
+<details>
+<summary>Drawing — Text & Images</summary>
+
+| GDScript | C# | Description |
+|---|---|---|
+| `text(str, x, y)` | `Text(str, x, y)` | Draw a string at position |
+| `textSize(size)` | `TextSize(size)` | Set font size (pixels) |
+| `textFont(font)` | — | Set font resource |
+| `textAlign(h [, v])` | `TextAlign(h)` | Set text alignment |
+| `loadImage(path)` | `LoadImage(path)` | Load a `Texture2D` from a path |
+| `image(tex, x, y [, w, h])` | `Image(tex, x, y [, w, h])` | Draw a texture |
 
 </details>
 
@@ -95,8 +119,14 @@ public partial class MySketch : GodotP5
 | `noFill()` | `NoFill()` | Disable fill |
 | `stroke(color)` | `Stroke(color)` | Set stroke color |
 | `noStroke()` | `NoStroke()` | Disable stroke |
-| `strokeWeight(w)` | `StrokeWeightSet(w)` | Set stroke width |
-| `background(color)` | `Background(color)` | Clear canvas with color |
+| `strokeWeight(w)` | `StrokeWeight(w)` | Set stroke width |
+| `smooth()` | `Smooth()` | Enable anti-aliasing (default) |
+| `noSmooth()` | `NoSmooth()` | Disable anti-aliasing |
+| `background(color [, alpha])` | `Background(color)` | Clear canvas with color |
+| `clear()` | — | Redraw background color |
+| `lerpColor(c1, c2, amt)` | `LerpColor(c1, c2, amt)` | Interpolate between two colors |
+| `red(c)` / `green(c)` / `blue(c)` / `alpha(c)` | `Red(c)` / `Green(c)` / `Blue(c)` / `Alpha(c)` | Extract color channel (0–1) |
+| `colorFromHSB(h, s, b [, a])` | — | Create color from HSB values |
 
 </details>
 
@@ -109,37 +139,116 @@ public partial class MySketch : GodotP5
 | `loop()` | `Loop()` | Resume draw loop |
 | `noLoop()` | `NoLoop()` | Stop draw loop |
 | `pause()` | `Pause()` | Toggle pause |
-| `restart()` | `Restart()` | Restart sketch |
+| `restart()` | `Restart()` | Re-run `setup()` |
 | `clear()` | — | Clear the canvas |
+| `frameRate(fps)` | `FrameRate(fps)` | Set target frame rate |
+| `getTargetFrameRate()` | `GetTargetFrameRate()` | Read target frame rate |
+| `setPointCount(n)` | `SetPointCount(n)` | Default vertex count for arcs/circles |
+| `set_title(title)` | `SetTitle(title)` | Set window title |
 
 </details>
 
 <details>
 <summary>Transforms</summary>
 
-| GDScript | Description |
-|---|---|
-| `push()` | Save transform state |
-| `pop()` | Restore transform state |
-| `m_translate(x, y)` | Translate origin |
-| `m_rotate(angle)` | Rotate around origin |
-| `resetMatrix()` | Reset transforms |
+`push()` / `pop()` save and restore **both** the draw transform **and** the full style state (fill, stroke, stroke weight, text size, etc.). `translate`, `rotate`, and `scale` operate in draw-space and must be called from inside `_draw()` / `DrawSketch()`.
+
+| GDScript | C# | Description |
+|---|---|---|
+| `push()` | `Push()` | Save transform + style state |
+| `pop()` | `Pop()` | Restore transform + style state |
+| `draw_translate(x, y)` | `Translate(x, y)` | Translate draw origin |
+| `draw_rotate(angle)` | `Rotate(angle)` | Rotate draw context (radians) |
+| `draw_scale(x, y)` | `Scale(x, y)` | Scale draw context |
+| `resetMatrix()` | `ResetMatrix()` | Reset draw transform to identity |
+| `m_translate(x, y)` | — | Legacy: translate the node itself |
+| `m_rotate(angle)` | — | Legacy: rotate the node itself |
 
 </details>
 
 <details>
-<summary>Input & Time</summary>
+<summary>Input</summary>
 
-| GDScript / C# | Description |
+**Variables**
+
+| GDScript | C# | Description |
+|---|---|---|
+| `mouseX`, `mouseY` | `MouseX`, `MouseY` | Current mouse position |
+| `pmouseX`, `pmouseY` | `PMouseX`, `PMouseY` | Mouse position last frame |
+| `movedX`, `movedY` | `MovedX`, `MovedY` | Mouse delta since last frame |
+| `mouseIsPressed` | `MouseIsPressed` | Whether a button is held |
+| `mouseButton` | `MouseButton` | `"LEFT"`, `"CENTER"`, or `"RIGHT"` |
+| `keyIsPressed` | `KeyIsPressed` | Whether a key is held |
+| `key` | `Key` | Name of the pressed key |
+| `keyCode` | — | Physical keycode of the pressed key |
+
+**Event callbacks** (override in your sketch)
+
+| GDScript | C# | Triggered when |
+|---|---|---|
+| `mousePressed()` | `MousePressed()` | Mouse button held (every frame) |
+| `mouseClicked()` | `MouseClicked()` | Mouse button first pressed |
+| `mouseReleased()` | `MouseReleased()` | Mouse button released |
+| `mouseMoved()` | `MouseMoved()` | Mouse moved (not dragging) |
+| `mouseDragged()` | `MouseDragged()` | Mouse moved while button held |
+| `keyPressed()` | `KeyPressed()` | Key first pressed |
+| `keyReleased()` | `KeyReleased()` | Key released |
+
+</details>
+
+<details>
+<summary>Math</summary>
+
+| GDScript | C# | Description |
+|---|---|---|
+| `map(v, is, is2, os, os2)` | `Map(v, is, is2, os, os2)` | Re-map a value from one range to another |
+| `constrain(n, lo, hi)` | `Constrain(n, lo, hi)` | Clamp a value |
+| `lerp(a, b, t)` *(built-in)* | `Lerp(a, b, t)` | Linear interpolation |
+| `dist(x1,y1, x2,y2)` | `Dist(x1,y1, x2,y2)` | Distance between two points |
+| `mag(a, b)` | `Mag(a, b)` | Magnitude of a 2D vector |
+| `norm(v, start, stop)` | `Norm(v, start, stop)` | Normalize to 0–1 |
+| `sq(n)` | `Sq(n)` | Square (`n * n`) |
+| `degrees(r)` | `Degrees(r)` | Radians → degrees |
+| `radians(d)` | `Radians(d)` | Degrees → radians |
+| `random_val(max)` | `Random(max)` | Random float 0–max |
+| `random_range(min, max)` | `Random(min, max)` | Random float in range |
+| `random_int(min, max)` | `Random(min, max)` | Random int in range |
+| `randomGaussian([mean, sd])` | `RandomGaussian([mean, sd])` | Gaussian random number |
+| `noise_val(x)` | `Noise(x)` | 1D noise (0–1) |
+| `noise_2d(x, y)` | `Noise(x, y)` | 2D noise (0–1) |
+| `noise_3d(x, y, z)` | `Noise(x, y, z)` | 3D noise (0–1) |
+| `noiseSeed(seed)` | `NoiseSeed(seed)` | Set noise seed |
+| `createVector(x, y)` | — | Create a `Vector2` |
+
+</details>
+
+<details>
+<summary>Time & Date</summary>
+
+| GDScript | C# | Description |
+|---|---|---|
+| `hour()` | `Hour()` | Current hour (0–23) |
+| `minute()` | `Minute()` | Current minute (0–59) |
+| `second()` | `Second()` | Current second (0–59) |
+| `day()` | `Day()` | Current day of month |
+| `month()` | `Month()` | Current month (1–12) |
+| `year()` | `Year()` | Current year |
+| `millis()` | `Millis()` | Milliseconds since engine start |
+| `frameCount` | `FrameCount` | Frames elapsed since setup |
+| `deltaTime` | `DeltaTime` | Seconds since last frame |
+
+</details>
+
+<details>
+<summary>Constants</summary>
+
+| Name | Value |
 |---|---|
-| `mouseX`, `mouseY` | Current mouse position |
-| `pmouseX`, `pmouseY` | Previous mouse position (GDScript) |
-| `mouseIsPressed` | Whether a mouse button is held |
-| `mouseButton` | Which mouse button is pressed |
-| `mousePressed()` | Override to handle mouse clicks |
-| `hour()`, `minute()`, `second()` | Current time |
-| `frameCount` | Frames elapsed since start |
-| `deltaTime` | Time since last frame |
+| `PI` | π ≈ 3.14159 |
+| `TWO_PI` / `TAU` | 2π ≈ 6.28318 |
+| `HALF_PI` | π/2 ≈ 1.5708 |
+| `QUARTER_PI` | π/4 ≈ 0.7854 |
+| `E` | e ≈ 2.71828 |
 
 </details>
 
