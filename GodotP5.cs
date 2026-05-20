@@ -89,6 +89,11 @@ public partial class GodotP5 : Node2D
     // RNG
     private readonly Random _rng = new();
 
+    // Mouse button edge-detection (polled in _Process to work inside SubViewports)
+    private bool _prevMouseLeft;
+    private bool _prevMouseRight;
+    private bool _prevMouseMiddle;
+
     // ── Lifecycle ─────────────────────────────────────────────────
     public void InitFromMainScene()
     {
@@ -109,8 +114,6 @@ public partial class GodotP5 : Node2D
             QueueRedraw();
         }
 
-        if (MouseIsPressed) MousePressed();
-
         PMouseX = MouseX;
         PMouseY = MouseY;
         Vector2 pos = GetLocalMousePosition();
@@ -118,6 +121,27 @@ public partial class GodotP5 : Node2D
         MouseY = (int)pos.Y;
         MovedX = MouseX - PMouseX;
         MovedY = MouseY - PMouseY;
+
+        // Poll mouse buttons — more reliable than _UnhandledInput inside SubViewports
+        bool leftDown   = Input.IsMouseButtonPressed(Godot.MouseButton.Left);
+        bool rightDown  = Input.IsMouseButtonPressed(Godot.MouseButton.Right);
+        bool middleDown = Input.IsMouseButtonPressed(Godot.MouseButton.Middle);
+
+        if (leftDown && !_prevMouseLeft)   { MouseIsPressed = true;  MouseButton = "LEFT";   MouseClicked(); }
+        if (rightDown && !_prevMouseRight) { MouseIsPressed = true;  MouseButton = "RIGHT";  MouseClicked(); }
+        if (middleDown && !_prevMouseMiddle){ MouseIsPressed = true; MouseButton = "CENTER"; MouseClicked(); }
+
+        bool anyDown = leftDown || rightDown || middleDown;
+        if (MouseIsPressed && anyDown)  MousePressed();
+        if (!anyDown && _prevMouseLeft || !anyDown && _prevMouseRight || !anyDown && _prevMouseMiddle)
+        {
+            MouseIsPressed = false;
+            MouseReleased();
+        }
+
+        _prevMouseLeft   = leftDown;
+        _prevMouseRight  = rightDown;
+        _prevMouseMiddle = middleDown;
     }
 
     public override void _Draw()
@@ -135,27 +159,7 @@ public partial class GodotP5 : Node2D
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is InputEventMouseButton mb)
-        {
-            if (mb.Pressed)
-            {
-                MouseIsPressed = true;
-                MouseButton = mb.ButtonIndex switch
-                {
-                    Godot.MouseButton.Left   => "LEFT",
-                    Godot.MouseButton.Middle => "CENTER",
-                    Godot.MouseButton.Right  => "RIGHT",
-                    _ => MouseButton,
-                };
-                MouseClicked();
-            }
-            else
-            {
-                MouseIsPressed = false;
-                MouseReleased();
-            }
-        }
-        else if (@event is InputEventMouseMotion)
+        if (@event is InputEventMouseMotion)
         {
             if (MouseIsPressed) MouseDragged();
             else MouseMoved();
