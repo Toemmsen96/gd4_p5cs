@@ -17,7 +17,6 @@ public class SmokeParticles : HotSketch
     {
         if (_particleSystem == null) return;
         Background(new Color(20f / 255f, 20f / 255f, 20f / 255f));
-        GD.Print($"MouseX: {MouseX}, Mapped Wind: {Map(MouseX, 0, Width, -0.2f, 0.2f)}");
         float dx = Map(MouseX, 0, Width, -0.2f, 0.2f);
         var wind = new Vector2(dx, 0);
 
