@@ -476,15 +476,32 @@ public partial class Demo : SubViewportContainer
 		_OnFileDialogFileSelected(path);
 	}
 
+	public override void _Input(InputEvent @event)
+	{
+		if (@event is not InputEventKey keyEvent) return;
+
+		if (_sketchIsHotReload)
+		{
+			_hotShell?.HandleKeyEvent(keyEvent);
+		}
+		else if (sketchIsGd)
+		{
+			canvas.Call("_unhandled_input", @event);
+		}
+		else if (canvas is GodotP5 p5Canvas)
+		{
+			p5Canvas.HandleKeyEvent(keyEvent);
+		}
+
+		GetViewport().SetInputAsHandled();
+	}
+
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		// Hot-reload: CsHotShell is a real GodotP5 node; input is dispatched natively.
-		if (_sketchIsHotReload) return;
-
-		// Guard: canvas must be a loaded GodotP5 sketch, not a bare Node2D from a failed load.
-		if (Sketch == null || canvas is not GodotP5) return;
-
-		canvas.Call("_unhandled_input", @event);
+		if (@event is InputEventMouseMotion && !sketchIsGd && canvas is GodotP5)
+			canvas.Call("_unhandled_input", @event);
+		else if (sketchIsGd)
+			canvas.Call("_unhandled_input", @event);
 	}
 
 	public override void _ExitTree()

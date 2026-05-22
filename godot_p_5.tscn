@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://b5buqd51ch70l"]
+
+[ext_resource type="Script" uid="uid://0j7t33r5b2pd" path="res://GodotP5Node.cs" id="1_node"]
+[ext_resource type="Script" uid="uid://yvik5fxhlv8t" path="res://sketch/Gametest.cs" id="2_sketch"]
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=849297863]
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=340722620]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 25
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 25
+theme_override_constants/margin_bottom = 25
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=1105674221]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/VBoxContainer" unique_id=1834697160]
+layout_mode = 2
+text = "Godot P5 is a selfcontained Node here. It can be placed anywhere a Subviewport can be placed at"
+
+[node name="GodotP5Node" type="SubViewportContainer" parent="MarginContainer/VBoxContainer" unique_id=928909949]
+layout_mode = 2
+script = ExtResource("1_node")
+Sketch = ExtResource("2_sketch")
