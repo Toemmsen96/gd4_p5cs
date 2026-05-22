@@ -1,37 +1,37 @@
-[gd_scene load_steps=8 format=3 uid="uid://bs2c8aaftclwu"]
+[gd_scene format=3 uid="uid://bs2c8aaftclwu"]
 
 [ext_resource type="Script" uid="uid://ddm4c130u11w0" path="res://Demo.cs" id="1_cbjxw"]
 [ext_resource type="Texture2D" uid="uid://c8n08mi2dp3yb" path="res://assets/bt_panel.svg" id="1_hp567"]
 [ext_resource type="Texture2D" uid="uid://depy737b07v1i" path="res://assets/bt_pause.svg" id="2_1rclq"]
-[ext_resource type="Script" uid="uid://b30nl4er85wu8" path="res://sketch/MixWaves.gd" id="2_kem5a"]
+[ext_resource type="Script" uid="uid://0kb0g7ygnuuc" path="res://sketch/SmokeParticles.gd" id="2_gxmxl"]
 [ext_resource type="Texture2D" uid="uid://6fp0prxn37er" path="res://assets/bt_restart.svg" id="3_t6av5"]
 [ext_resource type="Texture2D" uid="uid://bcrflv0a1t7q7" path="res://assets/bt_opensketch.png" id="4_gxmxl"]
 [ext_resource type="Texture2D" uid="uid://dxg27jeikrcmu" path="res://assets/bt_screenshot.svg" id="4_rrr1c"]
 
-[node name="P5" type="SubViewportContainer"]
+[node name="P5" type="SubViewportContainer" unique_id=2140415281]
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("1_cbjxw")
-Sketch = ExtResource("2_kem5a")
+Sketch = ExtResource("2_gxmxl")
 
-[node name="SketchViewport" type="SubViewport" parent="."]
+[node name="SketchViewport" type="SubViewport" parent="." unique_id=806309207]
 unique_name_in_owner = true
 handle_input_locally = false
 size = Vector2i(100, 100)
 render_target_update_mode = 4
 
-[node name="ViewportBg" type="ColorRect" parent="SketchViewport"]
+[node name="ViewportBg" type="ColorRect" parent="SketchViewport" unique_id=1006764399]
 unique_name_in_owner = true
 offset_right = 100.0
 offset_bottom = 100.0
 mouse_filter = 2
 
-[node name="Canvas" type="Node2D" parent="SketchViewport"]
+[node name="Canvas" type="Node2D" parent="SketchViewport" unique_id=1396231913]
 unique_name_in_owner = true
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=150372223]
 
-[node name="LabelWarningMsg" type="Label" parent="CanvasLayer"]
+[node name="LabelWarningMsg" type="Label" parent="CanvasLayer" unique_id=143166610]
 unique_name_in_owner = true
 visible = false
 anchors_preset = 8
@@ -50,7 +50,7 @@ theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 28
 text = "You need to set a sketch first !"
 
-[node name="BtMenu" type="TextureButton" parent="CanvasLayer"]
+[node name="BtMenu" type="TextureButton" parent="CanvasLayer" unique_id=1551372357]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(48, 48)
@@ -62,7 +62,7 @@ offset_bottom = 48.0
 grow_horizontal = 0
 texture_normal = ExtResource("1_hp567")
 
-[node name="Panel" type="Panel" parent="CanvasLayer"]
+[node name="Panel" type="Panel" parent="CanvasLayer" unique_id=647301570]
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0.470588)
 clip_contents = true
@@ -74,7 +74,7 @@ anchor_bottom = 1.0
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="BoxButton" type="VBoxContainer" parent="CanvasLayer/Panel"]
+[node name="BoxButton" type="VBoxContainer" parent="CanvasLayer/Panel" unique_id=1392208786]
 clip_contents = true
 custom_minimum_size = Vector2(48, 0)
 layout_mode = 1
@@ -87,34 +87,34 @@ offset_right = 24.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="BtHide" type="TextureButton" parent="CanvasLayer/Panel/BoxButton"]
+[node name="BtHide" type="TextureButton" parent="CanvasLayer/Panel/BoxButton" unique_id=2043438095]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 texture_normal = ExtResource("1_hp567")
 stretch_mode = 0
 
-[node name="BtLoadSketch" type="TextureButton" parent="CanvasLayer/Panel/BoxButton"]
+[node name="BtLoadSketch" type="TextureButton" parent="CanvasLayer/Panel/BoxButton" unique_id=1706566824]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 texture_normal = ExtResource("4_gxmxl")
 stretch_mode = 0
 
-[node name="BtPause" type="TextureButton" parent="CanvasLayer/Panel/BoxButton"]
+[node name="BtPause" type="TextureButton" parent="CanvasLayer/Panel/BoxButton" unique_id=1147076810]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 texture_normal = ExtResource("2_1rclq")
 
-[node name="BtRestart" type="TextureButton" parent="CanvasLayer/Panel/BoxButton"]
+[node name="BtRestart" type="TextureButton" parent="CanvasLayer/Panel/BoxButton" unique_id=913862015]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 texture_normal = ExtResource("3_t6av5")
 stretch_mode = 0
 
-[node name="BtCurrentColor" type="ColorPickerButton" parent="CanvasLayer/Panel/BoxButton"]
+[node name="BtCurrentColor" type="ColorPickerButton" parent="CanvasLayer/Panel/BoxButton" unique_id=258383129]
 unique_name_in_owner = true
 visible = false
 clip_contents = true
@@ -123,14 +123,14 @@ layout_mode = 2
 tooltip_text = "CURRENT COLOR"
 color = Color(1, 1, 1, 1)
 
-[node name="BtSaveImage" type="TextureButton" parent="CanvasLayer/Panel/BoxButton"]
+[node name="BtSaveImage" type="TextureButton" parent="CanvasLayer/Panel/BoxButton" unique_id=1530451424]
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
 tooltip_text = "SAVE SCREENSHOT"
 texture_normal = ExtResource("4_rrr1c")
 stretch_mode = 0
 
-[node name="LabelFps" type="Label" parent="CanvasLayer/Panel/BoxButton"]
+[node name="LabelFps" type="Label" parent="CanvasLayer/Panel/BoxButton" unique_id=1778032766]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(48, 48)
 layout_mode = 2
@@ -138,7 +138,7 @@ text = "60"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="FileDialog" type="FileDialog" parent="."]
+[node name="FileDialog" type="FileDialog" parent="." unique_id=470769164]
 unique_name_in_owner = true
 size = Vector2i(348, 166)
 access = 2
