@@ -24,10 +24,10 @@ func _draw() -> void:
 func _drawVector(v: Vector2, loc: Vector2, scale: float) -> void:
 	push()
 	var arrow_size := 4.0
+	draw_rotate(v.angle())
 	draw_translate(loc.x, loc.y)
 	stroke(Color.WHITE)
 	strokeWeight(3)
-	draw_rotate(v.angle())
 	var length := v.length() * scale
 	line(0, 0, length, 0)
 	line(length, 0, length - arrow_size, arrow_size / 2.0)

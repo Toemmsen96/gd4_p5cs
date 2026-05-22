@@ -308,10 +308,7 @@ public partial class Demo : SubViewportContainer
 		sketchViewport.Set("size", Vector2I.Zero);
 		if (sketchIsGd)
 		{
-			if (canvas.HasMethod("restart"))
-			{
-				canvas.Call("restart");
-			}
+			ReloadGdScript();
 			return;
 		}
 
