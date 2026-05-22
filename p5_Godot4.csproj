@@ -4,4 +4,12 @@
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <RootNamespace>p5_Godot4</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
+  </ItemGroup>
+  <!-- Hot-sketch files extend HotSketch and are compiled dynamically at runtime. -->
+  <!-- Exclude them here so Godot's source generator doesn't create conflicting partials. -->
+  <ItemGroup>
+    <Compile Remove="hotreload_sketches/*" />
+  </ItemGroup>
 </Project>

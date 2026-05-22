@@ -1,8 +1,9 @@
 // Smoke Particles based on https://p5js.org/examples/math-and-physics-smoke-particle-system/
+// Extends HotSketch for live C# hot-reload (save the file to see changes instantly).
 using Godot;
 using System.Collections.Generic;
 
-public partial class SmokeParticles : GodotP5
+public class SmokeParticles : HotSketch
 {
     private ParticleSystem _particleSystem = null!;
 
@@ -16,7 +17,7 @@ public partial class SmokeParticles : GodotP5
     {
         if (_particleSystem == null) return;
         Background(new Color(20f / 255f, 20f / 255f, 20f / 255f));
-
+        GD.Print($"MouseX: {MouseX}, Mapped Wind: {Map(MouseX, 0, Width, -0.2f, 0.2f)}");
         float dx = Map(MouseX, 0, Width, -0.2f, 0.2f);
         var wind = new Vector2(dx, 0);
 
@@ -55,12 +56,12 @@ public partial class SmokeParticles : GodotP5
                 _particles.Add(new Particle(_origin, 0));
         }
 
-        public void Run(SmokeParticles p5)
+        public void Run(SmokeParticles sketch)
         {
             for (int i = _particles.Count - 1; i >= 0; i--)
             {
                 _particles[i].Update();
-                _particles[i].Render(p5);
+                _particles[i].Render(sketch);
                 if (_particles[i].IsDead())
                     _particles.RemoveAt(i);
             }
@@ -95,21 +96,20 @@ public partial class SmokeParticles : GodotP5
 
         private static float Gaussian()
         {
-            // Box-Muller transform
             double u1 = GD.Randf();
             double u2 = GD.Randf();
             while (u1 == 0.0) u1 = GD.Randf();
             return (float)(System.Math.Sqrt(-2.0 * System.Math.Log(u1)) * System.Math.Cos(System.Math.PI * 2.0 * u2));
         }
 
-        public void Render(SmokeParticles p5)
+        public void Render(SmokeParticles sketch)
         {
             var c = new Color(_color.R, _color.G, _color.B, _lifespan / 100f);
-            p5.Push();
-            p5.NoStroke();
-            p5.Fill(c);
-            p5.Circle(_loc.X, _loc.Y, 20);
-            p5.Pop();
+            sketch.Push();
+            sketch.NoStroke();
+            sketch.Fill(c);
+            sketch.Circle(_loc.X, _loc.Y, 20);
+            sketch.Pop();
         }
 
         public void ApplyForce(Vector2 f) => _acceleration += f;
