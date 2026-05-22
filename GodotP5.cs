@@ -330,7 +330,15 @@ public partial class GodotP5 : Node2D
 
     public void Text(string str, float x, float y)
     {
-        DrawString(ThemeDB.FallbackFont, new Vector2(x, y), str, _textHAlign, -1, _textSize, FillColor);
+        // Godot's DrawString ignores alignment when width=-1, so we offset x ourselves.
+        float w = ThemeDB.FallbackFont.GetStringSize(str, HorizontalAlignment.Left, -1, _textSize).X;
+        float drawX = _textHAlign switch
+        {
+            HorizontalAlignment.Center => x - w * 0.5f,
+            HorizontalAlignment.Right  => x - w,
+            _                          => x,
+        };
+        DrawString(ThemeDB.FallbackFont, new Vector2(drawX, y), str, HorizontalAlignment.Left, -1, _textSize, FillColor);
     }
 
     // Legacy helper kept for existing sketches
