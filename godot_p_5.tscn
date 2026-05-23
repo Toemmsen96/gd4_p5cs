@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://b5buqd51ch70l"]
 
 [ext_resource type="Script" uid="uid://0j7t33r5b2pd" path="res://GodotP5Node.cs" id="1_node"]
-[ext_resource type="Script" uid="uid://yvik5fxhlv8t" path="res://sketch/Gametest.cs" id="2_sketch"]
+[ext_resource type="Script" uid="uid://0kb0g7ygnuuc" path="res://sketch/SmokeParticles.gd" id="2_tmsx8"]
+[ext_resource type="Script" uid="uid://b4226fmu4tgyo" path="res://sketch/blobby.gd" id="3_uwjlv"]
 
 [node name="CanvasLayer" type="CanvasLayer" unique_id=849297863]
 
@@ -23,7 +24,19 @@ layout_mode = 2
 layout_mode = 2
 text = "Godot P5 is a selfcontained Node here. It can be placed anywhere a Subviewport can be placed at"
 
-[node name="GodotP5Node" type="SubViewportContainer" parent="MarginContainer/VBoxContainer" unique_id=928909949]
+[node name="GodotP5Node" type="SubViewportContainer" parent="MarginContainer/VBoxContainer" unique_id=208040778]
+custom_minimum_size = Vector2(700, 450)
 layout_mode = 2
 script = ExtResource("1_node")
-Sketch = ExtResource("2_sketch")
+Sketch = ExtResource("2_tmsx8")
+metadata/_custom_type_script = "uid://0j7t33r5b2pd"
+
+[node name="Label2" type="Label" parent="MarginContainer/VBoxContainer" unique_id=115592858]
+layout_mode = 2
+text = "You can even add multiple"
+
+[node name="GodotP5Node2" type="SubViewportContainer" parent="MarginContainer/VBoxContainer" unique_id=1552412221]
+layout_mode = 2
+script = ExtResource("1_node")
+Sketch = ExtResource("3_uwjlv")
+metadata/_custom_type_script = "uid://0j7t33r5b2pd"

@@ -8,6 +8,7 @@ using Godot;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
+#nullable enable
 
 // Compiles a single HotSketch .cs file in-process using Roslyn and loads the
 // result into a collectible AssemblyLoadContext so it can be fully unloaded

@@ -1,5 +1,5 @@
 using Godot;
-
+#nullable enable
 // Permanent GodotP5 shell node. A dynamically compiled HotSketch is swapped in/out
 // without touching the scene tree. The shell delegates all virtual calls to the sketch.
 public partial class CsHotShell : GodotP5

@@ -1,4 +1,5 @@
 using Godot;
+#nullable enable
 
 // Base class for C# sketches with hot-reload support.
 // Use this instead of GodotP5. All drawing calls proxy through the shell node.
@@ -39,6 +40,7 @@ public abstract class HotSketch
     protected void SetViewportMode(GodotP5.ViewportMode mode)      => Shell.SetViewportMode(mode);
     protected void NoLoop()                                        => Shell.NoLoop();
     protected void Loop()                                          => Shell.Loop();
+    protected void Restart()                                       => Shell.Restart();
 
     // ── Style ─────────────────────────────────────────────────────
     protected void Background(Color c, float alpha = -1f)          => Shell.Background(c, alpha);

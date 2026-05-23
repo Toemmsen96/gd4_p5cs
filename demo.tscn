@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://ddm4c130u11w0" path="res://Demo.cs" id="1_cbjxw"]
 [ext_resource type="Texture2D" uid="uid://c8n08mi2dp3yb" path="res://assets/bt_panel.svg" id="1_hp567"]
 [ext_resource type="Texture2D" uid="uid://depy737b07v1i" path="res://assets/bt_pause.svg" id="2_1rclq"]
-[ext_resource type="Script" uid="uid://yvik5fxhlv8t" path="res://sketch/Gametest.cs" id="2_gxmxl"]
+[ext_resource type="Script" uid="uid://cjgr4ejtqgmy" path="res://hotreload_sketches/GametestHotReload.cs" id="2_gxmxl"]
 [ext_resource type="Texture2D" uid="uid://6fp0prxn37er" path="res://assets/bt_restart.svg" id="3_t6av5"]
 [ext_resource type="Texture2D" uid="uid://bcrflv0a1t7q7" path="res://assets/bt_opensketch.png" id="4_gxmxl"]
 [ext_resource type="Texture2D" uid="uid://dxg27jeikrcmu" path="res://assets/bt_screenshot.svg" id="4_rrr1c"]

@@ -1,7 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 
-public partial class Gametest : GodotP5
+public class GametestHotReload : HotSketch
 {
     private sealed class NoteState
     {
@@ -37,7 +37,7 @@ public partial class Gametest : GodotP5
         _hitFlash = Colors.Transparent;
 
         SetTitle("Gametest");
-        SetViewportMode(ViewportMode.Always);
+        SetViewportMode(GodotP5.ViewportMode.Always);
         CreateCanvas(700, 450);
 
         for (int i = 0; i < 4; i++)
