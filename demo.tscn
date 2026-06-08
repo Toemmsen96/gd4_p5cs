@@ -145,6 +145,7 @@ unique_name_in_owner = true
 size = Vector2i(348, 166)
 access = 2
 filters = PackedStringArray("*.png")
+use_native_dialog = true
 
 [connection signal="pressed" from="CanvasLayer/BtMenu" to="." method="_on_bt_menu_pressed"]
 [connection signal="pressed" from="CanvasLayer/Panel/BoxButton/BtHide" to="." method="_on_bt_hide_pressed"]

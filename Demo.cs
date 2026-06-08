@@ -48,7 +48,8 @@ public partial class Demo : SubViewportContainer
 		{
 			FileMode = FileDialog.FileModeEnum.OpenFile,
 			Access = FileDialog.AccessEnum.Filesystem,
-			Filters = ["*.cs,*.gd ; C# and GDScript sketches"]
+			Filters = ["*.cs,*.gd ; C# and GDScript sketches"],
+			UseNativeDialog = true
 		};
 		sketchFileDialog.FileSelected += OnSketchFileSelected;
 		AddChild(sketchFileDialog);
