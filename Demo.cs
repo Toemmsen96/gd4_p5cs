@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.IO;
+#nullable enable
 
 public partial class Demo : SubViewportContainer
 {
@@ -25,6 +26,11 @@ public partial class Demo : SubViewportContainer
 	private FileSystemWatcher? fileWatcher;
 	private bool reloadPending = false;
 
+	// C# hot-reload state
+	private CsHotReload? _csHotReload;
+	private CsHotShell? _hotShell;
+	private bool _sketchIsHotReload;
+
 	public override void _Ready()
 	{
 		sketchViewport = GetNode<SubViewport>("SketchViewport");
@@ -42,7 +48,8 @@ public partial class Demo : SubViewportContainer
 		{
 			FileMode = FileDialog.FileModeEnum.OpenFile,
 			Access = FileDialog.AccessEnum.Filesystem,
-			Filters = ["*.cs,*.gd ; C# and GDScript sketches"]
+			Filters = ["*.cs,*.gd ; C# and GDScript sketches"],
+			UseNativeDialog = true
 		};
 		sketchFileDialog.FileSelected += OnSketchFileSelected;
 		AddChild(sketchFileDialog);
@@ -53,10 +60,18 @@ public partial class Demo : SubViewportContainer
 		}
 		else
 		{
-			currentSketchPath = Sketch.ResourcePath;
-			LoadSketch();
-			SetupHotReload(ProjectSettings.GlobalizePath(currentSketchPath));
-			btMenu.Show();
+			string absolutePath = ProjectSettings.GlobalizePath(Sketch.ResourcePath);
+			if (IsHotSketchFile(absolutePath))
+			{
+				LoadHotReloadSketch(absolutePath);
+			}
+			else
+			{
+				currentSketchPath = Sketch.ResourcePath;
+				LoadSketch();
+				SetupHotReload(absolutePath);
+				btMenu.Show();
+			}
 		}
 
 		sketchViewport.HandleInputLocally = true;
@@ -67,7 +82,10 @@ public partial class Demo : SubViewportContainer
 		if (reloadPending)
 		{
 			reloadPending = false;
-			ReloadGdScript();
+			if (_sketchIsHotReload)
+				ReloadHotSketch();
+			else
+				ReloadGdScript();
 		}
 	}
 
@@ -107,8 +125,30 @@ public partial class Demo : SubViewportContainer
 		WatchCanvasScriptChanged();
 	}
 
+	private static bool IsHotSketchFile(string absolutePath)
+	{
+		if (!absolutePath.EndsWith(".cs", StringComparison.OrdinalIgnoreCase)) return false;
+		try { return File.ReadAllText(absolutePath).Contains(": HotSketch"); }
+		catch { return false; }
+	}
+
 	private void OnSketchFileSelected(string absolutePath)
 	{
+		if (IsHotSketchFile(absolutePath))
+		{
+			LoadHotReloadSketch(absolutePath);
+			return;
+		}
+
+		// Switching away from a hot-reload sketch — release it.
+		if (_sketchIsHotReload)
+		{
+			_hotShell?.LoadHotSketch(null);
+			_hotShell = null;
+			_csHotReload?.Unload();
+			_sketchIsHotReload = false;
+		}
+
 		string resPath = ProjectSettings.LocalizePath(absolutePath);
 		if (string.IsNullOrEmpty(resPath))
 			resPath = absolutePath;
@@ -136,12 +176,81 @@ public partial class Demo : SubViewportContainer
 		btMenu.Show();
 	}
 
+	private void LoadHotReloadSketch(string absolutePath)
+	{
+		_hotShell?.LoadHotSketch(null);
+		_hotShell = null;
+		_csHotReload ??= new CsHotReload();
+
+		var (sketch, error) = _csHotReload.CompileAndLoad(absolutePath);
+		if (error != null)
+		{
+			GD.PushError($"[HotReload] Compile error:\n{error}");
+			labelWarningMsg.Visible = true;
+			return;
+		}
+
+		string resPath = ProjectSettings.LocalizePath(absolutePath);
+		if (string.IsNullOrEmpty(resPath)) resPath = absolutePath;
+		currentSketchPath = resPath;
+		_sketchIsHotReload = true;
+
+		// Set the shell script on the canvas node (CsHotShell is compiled into the main assembly).
+		var shellScript = ResourceLoader.Load<Script>("res://CsHotShell.cs");
+		if (shellScript == null)
+		{
+			GD.PushError("[HotReload] Could not load res://CsHotShell.cs — is CsHotShell.cs in the project root?");
+			return;
+		}
+
+		DisconnectSketchSignals();
+		canvas.SetScript(shellScript);
+		canvas = GetNode<Node2D>("SketchViewport/Canvas");
+
+		if (canvas is not CsHotShell shell)
+		{
+			GD.PushError("[HotReload] Canvas did not become a CsHotShell after SetScript.");
+			return;
+		}
+		_hotShell = shell;
+
+		shell.Connect(GodotP5.SignalName.SetBackgroundColor, new Callable(this, nameof(SetBackgroundColor)));
+		shell.Connect(GodotP5.SignalName.SetViewportSize,    new Callable(this, nameof(SetViewportSize)));
+		shell.Connect(GodotP5.SignalName.SetCurrentColor,    new Callable(this, nameof(SetCurrentColor)));
+		shell.SubViewport = sketchViewport;
+		shell.LoadHotSketch(sketch);
+
+		sketchViewport.Set("size", Vector2I.Zero);
+		shell.InitFromMainScene();
+
+		SetupHotReload(absolutePath);
+		labelWarningMsg.Visible = false;
+		btMenu.Show();
+	}
+
+	private void ReloadHotSketch()
+	{
+		if (_hotShell == null || string.IsNullOrEmpty(currentSketchPath)) return;
+
+		string absolutePath = ProjectSettings.GlobalizePath(currentSketchPath);
+		var (sketch, error) = _csHotReload!.CompileAndLoad(absolutePath);
+		if (error != null)
+		{
+			GD.PushError($"[HotReload] Compile error:\n{error}");
+			return;
+		}
+
+		sketchViewport.Set("size", Vector2I.Zero);
+		_hotShell.LoadHotSketch(sketch);
+		_hotShell.Restart();
+	}
+
 	private void SetupHotReload(string absolutePath)
 	{
 		fileWatcher?.Dispose();
 		fileWatcher = null;
 
-		if (sketchIsGd)
+		if (sketchIsGd || _sketchIsHotReload)
 			StartFileWatcher(absolutePath);
 		else
 			WatchCanvasScriptChanged();
@@ -283,19 +392,21 @@ public partial class Demo : SubViewportContainer
 	private void _OnBtPausePressed()
 	{
 		GD.Print("on Button pause pressed ..");
+		if (_sketchIsHotReload)
+		{
+			_hotShell?.Pause();
+			return;
+		}
+
 		if (sketchIsGd)
 		{
 			if (canvas.HasMethod("pause"))
-			{
 				canvas.Call("pause");
-			}
 			return;
 		}
 
 		if (canvas is GodotP5 p5Canvas)
-		{
 			p5Canvas.Pause();
-		}
 	}
 
 	private void _on_bt_pause_pressed()
@@ -306,6 +417,12 @@ public partial class Demo : SubViewportContainer
 	private void _OnBtRestartPressed()
 	{
 		sketchViewport.Set("size", Vector2I.Zero);
+		if (_sketchIsHotReload)
+		{
+			ReloadHotSketch();
+			return;
+		}
+
 		if (sketchIsGd)
 		{
 			ReloadGdScript();
@@ -313,9 +430,7 @@ public partial class Demo : SubViewportContainer
 		}
 
 		if (canvas is GodotP5 p5Canvas)
-		{
 			p5Canvas.Restart();
-		}
 	}
 
 	private void _on_bt_restart_pressed()
@@ -363,18 +478,37 @@ public partial class Demo : SubViewportContainer
 		_OnFileDialogFileSelected(path);
 	}
 
-	public override void _UnhandledInput(InputEvent @event)
+	public override void _Input(InputEvent @event)
 	{
-		if (Sketch == null)
+		if (@event is not InputEventKey keyEvent) return;
+
+		if (_sketchIsHotReload)
 		{
-			return;
+			_hotShell?.HandleKeyEvent(keyEvent);
+		}
+		else if (sketchIsGd)
+		{
+			canvas.Call("_unhandled_input", @event);
+		}
+		else if (canvas is GodotP5 p5Canvas)
+		{
+			p5Canvas.HandleKeyEvent(keyEvent);
 		}
 
-		canvas.Call("_unhandled_input", @event);
+		GetViewport().SetInputAsHandled();
+	}
+
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (@event is InputEventMouseMotion && !sketchIsGd && canvas is GodotP5)
+			canvas.Call("_unhandled_input", @event);
+		else if (sketchIsGd)
+			canvas.Call("_unhandled_input", @event);
 	}
 
 	public override void _ExitTree()
 	{
 		fileWatcher?.Dispose();
+		_csHotReload?.Dispose();
 	}
 }

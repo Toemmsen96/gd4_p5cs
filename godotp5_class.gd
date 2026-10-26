@@ -1,14 +1,8 @@
 extends Node2D
 class_name GodotP5
 
-###	Godot Doc : class CanvasItem
-#	https://docs.godotengine.org/en/stable/classes/class_canvasitem.html
-###
-
-###
-# 	Link : https://p5js.org
-# 	GodotP5 is based on p5js's original goals, but I didn't tie to p5js's syntax.
-###
+##	Godot P5 Class: For a standalone node, place GodotP5Node in the Scene instead
+##
 
 signal set_background_color
 signal set_viewport_size

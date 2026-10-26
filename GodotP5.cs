@@ -166,18 +166,26 @@ public partial class GodotP5 : Node2D
         }
         else if (@event is InputEventKey keyEvent)
         {
-            if (keyEvent.Pressed)
-            {
-                KeyIsPressed = true;
-                Key = keyEvent.AsTextPhysicalKeycode();
-                KeyPressed();
-            }
-            else
-            {
-                KeyIsPressed = false;
-                Key = null;
-                KeyReleased();
-            }
+            HandleKeyEvent(keyEvent);
+        }
+    }
+
+    // Called directly by GodotP5Node when embedded in a SubViewport,
+    // since _UnhandledInput is not reliably dispatched to nodes inside SubViewports.
+    public void HandleKeyEvent(InputEventKey keyEvent)
+    {
+        if (keyEvent.Echo) return;
+        if (keyEvent.Pressed)
+        {
+            KeyIsPressed = true;
+            Key = keyEvent.AsTextPhysicalKeycode();
+            KeyPressed();
+        }
+        else
+        {
+            KeyIsPressed = false;
+            Key = null;
+            KeyReleased();
         }
     }
 
